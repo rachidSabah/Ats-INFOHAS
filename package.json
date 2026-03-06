@@ -1,17 +1,18 @@
 {
-  "name": "nextjs_tailwind_shadcn_ts",
+  "name": "ats-infohas",
   "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "npx @cloudflare/next-on-pages",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "pages:deploy": "npx wrangler pages deploy .vercel/output/static"
+    "cf:build": "npx @cloudflare/next-on-pages",
+    "cf:deploy": "npx @cloudflare/next-on-pages && npx wrangler pages deploy .vercel/output/static"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
