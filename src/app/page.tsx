@@ -1619,6 +1619,7 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
   const [result, setResult] = useState<any>(null);
   const [coverLetterResult, setCoverLetterResult] = useState<any>(null);
   const [interviewResult, setInterviewResult] = useState<any>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
   const [selectedTemplate, setSelectedTemplate] = useState('professional');
   const [isEditing, setIsEditing] = useState(false);
@@ -1860,6 +1861,7 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
     if (!result?.optimized_content || !jobText) return;
     setLoading(true);
     setAppError("");
+    setCurrentQuestionIndex(0);
     try {
       const currentContent = resumePreviewRef.current ? resumePreviewRef.current.innerHTML : result.optimized_content;
       const data = await generateInterviewPrepWithGemini(currentContent, jobText);
@@ -2178,25 +2180,80 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
                  <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
                     <div className="bg-amber-100 p-3 rounded-xl"><MessageSquare className="w-8 h-8 text-amber-600" /></div>
-                    <div>
+                    <div className="flex-1">
                        <h2 className="text-2xl font-bold text-slate-800">Interview Prep Guide</h2>
                        <p className="text-slate-500 text-sm mt-1">Tailored Q&A based on the specific skills optimized in your resume.</p>
                     </div>
+                    <div className="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full">
+                       Question {currentQuestionIndex + 1} of {interviewResult.length}
+                    </div>
                  </div>
-                 <div className="space-y-6">
-                    {interviewResult.map((item: any, i: number) => (
-                       <div key={i} className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                          <h3 className="font-bold text-slate-800 text-lg mb-4 flex gap-3"><span className="text-indigo-600">Q{i+1}:</span> {String(item.question)}</h3>
-                          <div className="bg-white p-5 rounded-lg border border-slate-200 text-slate-600 italic shadow-sm">
-                             <span className="font-bold text-emerald-600 not-italic block mb-2 flex items-center gap-2"><CheckCircle className="w-4 h-4" /> STAR Method Strategy:</span>
-                             {String(item.star_answer)}
-                          </div>
-                       </div>
-                    ))}
+                 
+                 {/* Progress Bar */}
+                 <div className="mb-6">
+                    <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                       <div 
+                          className="h-full bg-indigo-600 transition-all duration-300 ease-out" 
+                          style={{ width: `${((currentQuestionIndex + 1) / interviewResult.length) * 100}%` }}
+                       ></div>
+                    </div>
                  </div>
-                 <div className="mt-8 flex justify-end pt-6 border-t border-slate-100">
-                    <button onClick={() => setStep(3)} className="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-700 transition flex items-center gap-2">
-                       Back to Resume
+                 
+                 {/* Current Question */}
+                 <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-4 flex gap-3">
+                       <span className="text-indigo-600">Q{currentQuestionIndex + 1}:</span> 
+                       {String(interviewResult[currentQuestionIndex]?.question)}
+                    </h3>
+                    <div className="bg-white p-5 rounded-lg border border-slate-200 text-slate-600 italic shadow-sm">
+                       <span className="font-bold text-emerald-600 not-italic block mb-2 flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" /> STAR Method Strategy:
+                       </span>
+                       {String(interviewResult[currentQuestionIndex]?.star_answer)}
+                    </div>
+                 </div>
+                 
+                 {/* Navigation Buttons */}
+                 <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                    <button 
+                       onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))} 
+                       disabled={currentQuestionIndex === 0}
+                       className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    >
+                       <ChevronRight className="w-5 h-5 rotate-180" /> Previous
+                    </button>
+                    
+                    <div className="flex gap-2">
+                       {interviewResult.map((_: any, idx: number) => (
+                          <button
+                             key={idx}
+                             onClick={() => setCurrentQuestionIndex(idx)}
+                             className={`w-3 h-3 rounded-full transition-all ${idx === currentQuestionIndex ? 'bg-indigo-600 scale-125' : 'bg-slate-300 hover:bg-slate-400'}`}
+                          />
+                       ))}
+                    </div>
+                    
+                    {currentQuestionIndex < interviewResult.length - 1 ? (
+                       <button 
+                          onClick={() => setCurrentQuestionIndex(Math.min(interviewResult.length - 1, currentQuestionIndex + 1))} 
+                          className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-md"
+                       >
+                          Next <ChevronRight className="w-5 h-5" />
+                       </button>
+                    ) : (
+                       <button 
+                          onClick={() => setStep(3)} 
+                          className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md"
+                       >
+                          <CheckCircle className="w-5 h-5" /> Finish
+                       </button>
+                    )}
+                 </div>
+                 
+                 {/* Back to Resume Button */}
+                 <div className="mt-6 flex justify-center">
+                    <button onClick={() => setStep(3)} className="text-slate-600 hover:text-slate-800 px-6 py-2 rounded-lg font-medium transition flex items-center gap-2">
+                       <ChevronRight className="w-4 h-4 rotate-180" /> Back to Resume
                     </button>
                  </div>
               </div>
