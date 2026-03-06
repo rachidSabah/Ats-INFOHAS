@@ -437,11 +437,30 @@ const generateColdEmailWithGemini = async (resumeHtml: string, jobDescription: s
 
 const generateInterviewPrepWithGemini = async (resumeHtml: string, jobDescription: string) => {
   try {
-    const prompt = `ACT AS: Lead Interviewer. OBJECTIVE: Generate 5 likely interview questions and STAR answers. INPUT: [RESUME]: ${resumeHtml}, [JOB]: ${jobDescription}. OUTPUT JSON: { "questions": [{ "question": "string", "star_answer": "string" }] }`;
+    const prompt = `ACT AS: Lead Interviewer. OBJECTIVE: Generate 10 likely interview questions and STAR answers based on the resume and job description. Focus on technical skills, experience, behavioral questions, and situational scenarios relevant to the position. INPUT: [RESUME]: ${resumeHtml}, [JOB]: ${jobDescription}. OUTPUT JSON: { "questions": [{ "question": "string", "star_answer": "string" }] }`;
     let text = await generateAIContent(prompt);
+    
+    // Clean up the response
     text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
-  } catch (error: any) { throw new Error(error.message || "Interview Prep generation failed."); }
+    
+    // Try to find JSON in the response
+    const jsonMatch = text.match(/\{[\s\S]*"questions"[\s\S]*\}/);
+    if (jsonMatch) {
+      text = jsonMatch[0];
+    }
+    
+    const parsed = JSON.parse(text);
+    
+    // Validate the structure
+    if (!parsed.questions || !Array.isArray(parsed.questions)) {
+      throw new Error("Invalid response format from AI");
+    }
+    
+    return parsed;
+  } catch (error: any) {
+    console.error("Interview Prep Error:", error);
+    throw new Error(error.message || "Interview Prep generation failed.");
+  }
 };
 
 const parseFile = async (file: File): Promise<string> => {
@@ -2089,7 +2108,7 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
                        </button>
                     </div>
                     <div className="flex flex-wrap items-center justify-center gap-3 w-full md:w-auto">
-                       <button onClick={() => setStep(1)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Edit Input</button>
+                       <button onClick={() => { setResult(null); setInterviewResult(null); setCoverLetterResult(null); setStep(1); }} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Edit Input</button>
                        <button onClick={handleDownloadResume} className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm transition"><FileDown className="w-4 h-4" /> Download Docx</button>
                        {coverLetterResult && (
                            <button onClick={handleDownloadCoverLetter} className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm transition"><Mail className="w-4 h-4" /> Cover Letter DOCX</button>
