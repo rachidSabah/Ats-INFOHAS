@@ -202,15 +202,15 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
         <meta charset='utf-8'>
         <title>Export</title>
         <style>
-          /* STRICT A4 PAGE LAYOUT */
+          /* STRICT A4 PAGE LAYOUT - 0.95cm margins for perfect one-page fit */
           @page {
               size: 21cm 29.7cm;
-              margin: 1.27cm 1.27cm 1.27cm 1.27cm; 
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm; 
               mso-page-orientation: portrait;
           }
           @page WordSection1 {
               size: 21cm 29.7cm;
-              margin: 1.27cm 1.27cm 1.27cm 1.27cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm;
           }
           div.WordSection1 {
               page: WordSection1;
@@ -218,7 +218,7 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
           /* Global Resets - PLAIN TEXT AESTHETIC */
           body { 
             font-family: ${fontFamily}; 
-            font-size: 12.0pt; 
+            font-size: 11.0pt; 
             line-height: 1.15; 
             color: ${textColor}; 
             background: #ffffff;
@@ -234,37 +234,37 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
           }
           /* Header: Name - LEFT ALIGNED */
           h1 { 
-            font-size: 16pt; 
+            font-size: 14pt; 
             font-weight: bold; 
             text-align: left; 
             text-transform: uppercase;
             color: ${headingColor};
-            margin: 0 0 4pt 0; 
+            margin: 0 0 3pt 0; 
             padding: 0;
           }
           /* Header: Contact - LEFT ALIGNED */
           p.contact {
             text-align: left; 
-            font-size: 12pt; 
-            margin: 0 0 12pt 0; 
+            font-size: 10pt; 
+            margin: 0 0 8pt 0; 
             color: ${textColor};
           }
           /* Section Headers - LEFT ALIGNED */
           h3 { 
-            font-size: 12pt; 
+            font-size: 11pt; 
             font-weight: bold; 
             text-transform: uppercase; 
             text-align: left; 
             border: none !important;
             text-decoration: none !important;
-            margin-top: 12pt; 
-            margin-bottom: 6pt;
+            margin-top: 8pt; 
+            margin-bottom: 4pt;
             color: ${headingColor};
           }
           /* Job Titles */
           h4 {
-            font-size: 12pt;
-            margin-top: 6pt;
+            font-size: 11pt;
+            margin-top: 4pt;
             margin-bottom: 2pt;
             color: ${headingColor};
             font-weight: bold; 
@@ -273,17 +273,19 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
           p { 
             margin: 0;
             text-align: justify;
-            margin-bottom: 4pt; 
+            margin-bottom: 3pt; 
           }
-          /* Bullets */
+          /* Bullets - Use proper bullet character */
           ul { 
             margin-top: 0;
-            margin-bottom: 8pt;
-            padding-left: 18pt; 
+            margin-bottom: 6pt;
+            padding-left: 15pt; 
+            list-style-type: disc;
           }
           li { 
             margin-bottom: 2pt; 
             padding-left: 0;
+            list-style-type: disc;
           }
           /* Clean Bold */
           strong, b {
@@ -316,7 +318,7 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
     const prompt = `
       ACT AS: Senior ATS Optimization Expert and Master Executive Resume Writer.
       
-      OBJECTIVE: Optimise for maximum ATS score. Rewrite the resume to FILL EXACTLY ONE A4 PAGE (12pt font). You must strategically weave in exact keywords, hard skills, and industry terminology to guarantee a 90%+ match rate.
+      OBJECTIVE: Optimise for maximum ATS score. Rewrite the resume to FILL EXACTLY ONE A4 PAGE (11pt font, 0.95cm margins). You must strategically weave in exact keywords, hard skills, and industry terminology to guarantee a 90%+ match rate.
       
       CONTEXT:
       - ATS SYSTEM: ${atsSystem} (${atsFocus})
@@ -333,17 +335,19 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
       TASK 2: REWRITE (STRICT PLAIN TEXT).
       
       CRITICAL LENGTH ENFORCEMENT (NON-NEGOTIABLE & STRICT):
-      The generated resume MUST contain EXACTLY 2,800 characters (excluding HTML tags). Not less, not more.
-      - 2,100 characters is too short and sparse. DO NOT OUTPUT SHORT TEXT.
-      - 3,000+ characters will cause page overflow. DO NOT EXCEED.
-      - **HOW TO HIT EXACTLY 2800 CHARACTERS INTELLIGENTLY**: 
-        1. If the draft is short: Expand content intelligently without filler or redundancy. Add deep technical context. Improve impact-driven bullet points. Ensure measurable achievements are prioritized (e.g., increased efficiency by X%, managed $Y budget). Use 5-7 detailed bullet points for the 2 most recent roles.
-        2. If the draft is too long: Summarize older roles (older than 5 years) to a single line without bullet points. Keep the summary to exactly 3 lines.
+      The generated resume MUST fit on ONE A4 page with 0.95cm margins all around.
+      - Target: 3,200-3,500 characters (excluding HTML tags) for perfect one-page fit.
+      - DO NOT exceed 3,800 characters or content will overflow.
+      - DO NOT output less than 2,800 characters or page will look sparse.
+      - **HOW TO HIT PERFECT LENGTH**: 
+        1. If draft is short: Expand with specific achievements, metrics, and detailed bullet points.
+        2. If draft is too long: Condense older roles to single line, reduce bullet points to 3-4 per role.
       
       FORMATTING RULES (NON-NEGOTIABLE):
       1. **NO** Emojis, Icons, Graphics, Colors, Tables, Columns, or Decorative Symbols.
       2. **NO** Underlines or horizontal rules (<hr>).
-      3. **FONT**: Times New Roman, Size 12.
+      3. **FONT**: Times New Roman, Size 11pt.
+      4. **BULLETS**: MUST use proper bullet points with <ul><li> tags. NEVER use dashes (-), asterisks (*), or other symbols as bullets.
       
       STRUCTURE:
       1. **HEADER**: Name (H1, Uppercase, Bold, LEFT ALIGNED), Contact Info (LEFT ALIGNED).
@@ -352,10 +356,12 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
          - Job Title, Company, Location, Date MUST be on ONE LINE.
          - Format: <h4><strong>Job Title</strong> | <strong>Company Name</strong>, Location | <strong>YYYY to YYYY</strong></h4>
          - Do NOT use "(1 Year)". Use "Present" if applicable.
+         - Use <ul><li>bullet point</li></ul> for achievements - NEVER use dashes or hyphens!
       4. **EDUCATION ENTRIES**:
          - Format: <h4><strong>Degree</strong> | <strong>School</strong> | <strong>YYYY to YYYY</strong></h4>
-         - List relevant modules/subjects learned as a simple bullet list.
+         - List relevant modules/subjects as bullet points using <ul><li> tags.
       5. **CONTENT**: Use <strong> tags for bolding. NO markdown asterisks (**).
+      6. **BULLET POINTS**: Always wrap in <ul><li>...</li></ul> tags for proper formatting.
       
       RETURN JSON FORMAT ONLY:
       {
@@ -364,7 +370,7 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
         "summary_critique": "string",
         "missing_keywords": ["string", "string"],
         "matched_keywords": ["string", "string"],
-        "optimized_content": "Valid HTML string..."
+        "optimized_content": "Valid HTML string with proper <ul><li> bullet points..."
       }
     `;
 
@@ -374,6 +380,11 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
     const data = JSON.parse(text);
     if (data.optimized_content) {
       data.optimized_content = data.optimized_content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Fix dash-based bullets to proper HTML bullets
+      data.optimized_content = data.optimized_content.replace(/^- (.+)$/gm, '<li>$1</li>');
+      data.optimized_content = data.optimized_content.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+      // Fix any remaining standalone dashes used as bullets
+      data.optimized_content = data.optimized_content.replace(/^\s*[-•]\s*(.+)$/gm, '<li>$1</li>');
     }
     if (!data.score_breakdown) {
        data.score_breakdown = { impact: 85, brevity: 90, keywords: data.score };
@@ -437,7 +448,17 @@ const generateColdEmailWithGemini = async (resumeHtml: string, jobDescription: s
 
 const generateInterviewPrepWithGemini = async (resumeHtml: string, jobDescription: string) => {
   try {
-    const prompt = `ACT AS: Lead Interviewer. OBJECTIVE: Generate 10 likely interview questions and STAR answers based on the resume and job description. Focus on technical skills, experience, behavioral questions, and situational scenarios relevant to the position. INPUT: [RESUME]: ${resumeHtml}, [JOB]: ${jobDescription}. OUTPUT JSON: { "questions": [{ "question": "string", "star_answer": "string" }] }`;
+    const prompt = `ACT AS: Lead Interviewer. OBJECTIVE: Generate 10 likely interview questions and detailed STAR answers based on the resume and job description. Focus on technical skills, experience, behavioral questions, and situational scenarios relevant to the position. 
+    
+    INPUT: [RESUME]: ${resumeHtml}, [JOB]: ${jobDescription}. 
+    
+    OUTPUT JSON: { "questions": [{ "question": "string", "star_answer": "string with detailed S-T-A-R breakdown" }] }
+    
+    Each star_answer should be structured as:
+    - Situation: Describe the context
+    - Task: Explain what needed to be done
+    - Action: Detail the specific actions taken
+    - Result: Share the measurable outcome`;
     let text = await generateAIContent(prompt);
     
     // Clean up the response
@@ -1741,6 +1762,35 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
     document.body.removeChild(fileDownload);
   };
 
+  const handleDownloadInterviewQuestions = () => {
+    if (!interviewResult || interviewResult.length === 0) return;
+    
+    // Build HTML content for interview questions
+    let questionsHtml = `
+      <h1>Interview Preparation Guide</h1>
+      <p class="contact">Generated by ATSPro - Tailored Q&A based on your optimized resume</p>
+    `;
+    
+    interviewResult.forEach((item: any, i: number) => {
+      questionsHtml += `
+        <h3>Question ${i + 1}</h3>
+        <p><strong>${String(item.question)}</strong></p>
+        <p><em>STAR Method Strategy:</em></p>
+        <p>${String(item.star_answer)}</p>
+        <br/>
+      `;
+    });
+    
+    const sourceHTML = getDocxHtml(questionsHtml, 'professional');
+    const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+    const fileDownload = document.createElement("a");
+    document.body.appendChild(fileDownload);
+    fileDownload.href = source;
+    fileDownload.download = 'Interview_Prep_Guide.doc';
+    fileDownload.click();
+    document.body.removeChild(fileDownload);
+  };
+
   const handlePdfExport = () => {
     const element = resumePreviewRef.current;
     if (!element) return;
@@ -2184,8 +2234,16 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
                        <h2 className="text-2xl font-bold text-slate-800">Interview Prep Guide</h2>
                        <p className="text-slate-500 text-sm mt-1">Tailored Q&A based on the specific skills optimized in your resume.</p>
                     </div>
-                    <div className="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full">
-                       Question {currentQuestionIndex + 1} of {interviewResult.length}
+                    <div className="flex items-center gap-3">
+                       <button 
+                          onClick={handleDownloadInterviewQuestions}
+                          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm"
+                       >
+                          <FileDown className="w-4 h-4" /> Download All
+                       </button>
+                       <div className="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full">
+                          Question {currentQuestionIndex + 1} of {interviewResult.length}
+                       </div>
                     </div>
                  </div>
                  
