@@ -318,7 +318,7 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
     const prompt = `
       ACT AS: Senior ATS Optimization Expert and Master Executive Resume Writer.
       
-      OBJECTIVE: Optimise for maximum ATS score. Rewrite the resume to FILL EXACTLY ONE A4 PAGE (11pt font, 0.95cm margins). You must strategically weave in exact keywords, hard skills, and industry terminology to guarantee a 90%+ match rate.
+      OBJECTIVE: Optimise for maximum ATS score. Rewrite the resume to FILL EXACTLY ONE A4 PAGE (11pt font, 0.95cm margins all sides). You must strategically weave in exact keywords, hard skills, and industry terminology to guarantee a 90%+ match rate.
       
       CONTEXT:
       - ATS SYSTEM: ${atsSystem} (${atsFocus})
@@ -334,14 +334,29 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
       TASK 1: SCORING (Calculate ATS Score, Impact, Brevity, Keywords).
       TASK 2: REWRITE (STRICT PLAIN TEXT).
       
-      CRITICAL LENGTH ENFORCEMENT (NON-NEGOTIABLE & STRICT):
-      The generated resume MUST fit on ONE A4 page with 0.95cm margins all around.
-      - Target: 3,200-3,500 characters (excluding HTML tags) for perfect one-page fit.
-      - DO NOT exceed 3,800 characters or content will overflow.
-      - DO NOT output less than 2,800 characters or page will look sparse.
-      - **HOW TO HIT PERFECT LENGTH**: 
-        1. If draft is short: Expand with specific achievements, metrics, and detailed bullet points.
-        2. If draft is too long: Condense older roles to single line, reduce bullet points to 3-4 per role.
+      ⚠️ CRITICAL LENGTH ENFORCEMENT - ONE A4 PAGE EXACTLY ⚠️
+      Page Setup: A4 (21cm x 29.7cm), Margins: 0.95cm all sides, Font: Times New Roman 11pt
+      
+      TARGET CHARACTER COUNT: 3,400 - 3,800 characters (excluding HTML tags)
+      - MINIMUM: 3,400 characters (page will have white space if shorter)
+      - MAXIMUM: 3,900 characters (content will overflow to page 2 if longer)
+      - SWEET SPOT: 3,600 characters = perfectly filled one page
+      
+      HOW TO FILL THE PAGE (MANDATORY EXPANSION STRATEGIES):
+      1. PROFESSIONAL SUMMARY: Write 3-4 compelling sentences with specific achievements and keywords
+      2. EXPERIENCE BULLETS: Each role MUST have 4-6 detailed bullet points
+      3. BULLET POINT DETAIL: Each bullet should be 15-25 words with:
+         - Action verb + specific task + measurable result
+         - Include metrics: "increased by X%", "managed $Y budget", "reduced Z hours"
+         - Add context: team size, scope, technology used
+      4. SKILLS SECTION: List 12-15 relevant skills grouped by category
+      5. EDUCATION: Add relevant coursework, honors, GPA if notable
+      
+      EXPANSION TECHNIQUES IF CONTENT IS TOO SHORT:
+      - Add quantitative achievements: "Reduced processing time by 40%", "Managed team of 12"
+      - Expand vague bullets: "Handled customer complaints" → "Resolved 50+ customer inquiries weekly, achieving 95% satisfaction rating through effective communication and problem-solving"
+      - Add relevant projects, certifications, or volunteer work
+      - Include technical tools, software, and methodologies used
       
       FORMATTING RULES (NON-NEGOTIABLE):
       1. **NO** Emojis, Icons, Graphics, Colors, Tables, Columns, or Decorative Symbols.
@@ -604,9 +619,9 @@ const fetchJobWithGemini = async (url: string) => {
 
 // --- COMPONENTS ---
 const FitAnalyzer: React.FC<{ contentLength: number }> = ({ contentLength }) => {
-  const minTarget = 2750;
-  const maxTarget = 2900;
-  const optimalTarget = 2800;
+  const minTarget = 3400;
+  const maxTarget = 3900;
+  const optimalTarget = 3600;
   
   const percentage = Math.min((contentLength / maxTarget) * 100, 100);
   
@@ -624,7 +639,7 @@ const FitAnalyzer: React.FC<{ contentLength: number }> = ({ contentLength }) => 
   return (
     <div className="bg-slate-100 p-2 rounded-lg text-xs border border-slate-200 mb-2">
       <div className="flex justify-between items-center mb-1">
-        <span className="font-bold text-slate-700">A4 Fit Meter (Strict 2800 Target)</span>
+        <span className="font-bold text-slate-700">A4 Fit Meter (One Page: 3600 chars)</span>
         <span className={`${statusColor.replace('bg-', 'text-')} font-bold`}>{statusText} ({contentLength} chars)</span>
       </div>
       <div className="w-full bg-slate-300 rounded-full h-2 overflow-hidden">
@@ -2210,7 +2225,8 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
                       contentEditable={isEditing}
                       suppressContentEditableWarning={true}
                       onInput={handleEditorInput}
-                      className={`p-12 text-sm leading-relaxed prose prose-sm max-w-none prose-h1:text-left prose-h1:uppercase prose-h3:uppercase prose-h3:border-none prose-p:my-0 prose-ul:my-0 prose-li:my-0 outline-none ${
+                      style={{ padding: '0.95cm' }}
+                      className={`text-[11pt] leading-[1.15] prose prose-sm max-w-none prose-h1:text-left prose-h1:uppercase prose-h3:uppercase prose-h3:border-none prose-p:my-0 prose-ul:my-0 prose-li:my-0 outline-none ${
                         selectedTemplate === 'professional' ? 'font-serif text-black prose-h3:text-black' : 
                         selectedTemplate === 'modern' ? 'font-sans text-slate-800 prose-h1:text-slate-900 prose-h3:text-slate-800' : 
                         'font-sans text-gray-700 font-light prose-h1:text-gray-900 prose-h3:text-gray-800 prose-h1:font-medium prose-h3:font-medium'
