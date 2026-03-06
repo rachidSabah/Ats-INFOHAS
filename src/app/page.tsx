@@ -1,8 +1,70 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, RefreshCw, ChevronRight, BarChart2, Download, Copy, Briefcase, FileUp, FileDown, Loader2, Search, Mail, MessageSquare, Printer, Edit3, Save, Send, History, Settings, X, Trash2, Eye, EyeOff, Plane, ShieldCheck, Users, Layout, Activity, FileStack, Cloud, Check, Lock, Globe, LogOut, UserPlus, Edit, Shield, UserX, UserCheck, CreditCard, Zap, Key, ScrollText, Bell, Menu, Plus, LockKeyhole, Receipt } from 'lucide-react';
-import { puter } from '@heyputer/puter.js';
+
+// --- ERROR BOUNDARY ---
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('React Error Boundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 max-w-md text-center">
+            <div className="bg-red-100 p-3 rounded-xl w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Something went wrong</h2>
+            <p className="text-slate-500 text-sm mb-4">{this.state.error?.message || 'An unexpected error occurred'}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Dynamic puter.js loader with error handling
+let puterInstance: any = null;
+let puterLoadAttempted = false;
+
+const getPuter = async (): Promise<any> => {
+  if (puterInstance) return puterInstance;
+  if (puterLoadAttempted && !puterInstance) return null;
+  
+  puterLoadAttempted = true;
+  try {
+    const puterModule = await import('@heyputer/puter.js');
+    puterInstance = puterModule.puter;
+    return puterInstance;
+  } catch (error) {
+    console.error('Failed to load puter.js:', error);
+    return null;
+  }
+};
 
 
 // --- INTERFACES ---
@@ -88,6 +150,13 @@ const generateAIContent = async (prompt: string): Promise<string> => {
 // Puter.js AI - FREE, no API key required!
 const generateWithPuter = async (prompt: string, model?: string): Promise<string> => {
   try {
+    // Dynamically load puter.js with error handling
+    const puter = await getPuter();
+    
+    if (!puter || !puter.ai) {
+      throw new Error('Puter.js is not available. Please try another AI provider.');
+    }
+    
     // Use Puter.js from npm package - completely free!
     const response = await puter.ai.chat(prompt, {
       model: model || 'gpt-4o-mini' // Default to GPT-4o-mini (free)
@@ -717,7 +786,7 @@ const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [editingAi, setEditingAi] = useState<any>(null);
-  const [aiFormData, setAiFormData] = useState({ name: '', model: '', apiKey: '', priority: 1, status: false, tags: '', baseUrl: '' });
+  const [aiFormData, setAiFormData] = useState({ name: '', model: '', apiKey: '', priority: 1, status: false, tags: '', baseUrl: '', isPuter: false });
   const [isFetchingModels, setIsFetchingModels] = useState(false);
 
   const [alertMessage, setAlertMessage] = useState<any>(null); 
@@ -856,11 +925,12 @@ const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any
       setAiFormData({ 
         ...provider, 
         tags: Array.isArray(provider.tags) ? provider.tags.join(', ') : provider.tags || '',
-        baseUrl: provider.baseUrl || ''
+        baseUrl: provider.baseUrl || '',
+        isPuter: provider.isPuter || false
       });
     } else {
       setEditingAi(null);
-      setAiFormData({ name: '', model: '', apiKey: '', priority: aiProviders.length + 1, status: false, tags: 'Premium, Vision', baseUrl: '' });
+      setAiFormData({ name: '', model: '', apiKey: '', priority: aiProviders.length + 1, status: false, tags: 'Premium, Vision', baseUrl: '', isPuter: false });
     }
     setIsAiModalOpen(true);
   };
@@ -1456,8 +1526,8 @@ const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any
                     'Together AI': { model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo', baseUrl: '', tags: 'Free, Llama', apiKey: '' },
                     'Ollama (Local)': { model: 'llama3.2:latest', baseUrl: 'http://localhost:11434/v1', tags: 'Free, Local, Privacy', apiKey: 'ollama' }
                   };
-                  const defaults = providerDefaults[selectedName] || { model: '', baseUrl: '', tags: '', apiKey: '' };
-                  setAiFormData({...aiFormData, name: selectedName, model: defaults.model, baseUrl: defaults.baseUrl, tags: defaults.tags, apiKey: defaults.apiKey, isPuter: defaults.isPuter});
+                  const defaults = providerDefaults[selectedName] || { model: '', baseUrl: '', tags: '', apiKey: '', isPuter: false };
+                  setAiFormData({...aiFormData, name: selectedName, model: defaults.model, baseUrl: defaults.baseUrl, tags: defaults.tags, apiKey: defaults.apiKey, isPuter: defaults.isPuter || false});
                 }} className="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 text-sm outline-none bg-white">
                   <option value="">-- Select Provider --</option>
                   <option value="Puter.js (Free)">🌟 Puter.js (FREE - No API Key Required!)</option>
@@ -1818,7 +1888,7 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
       }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    return () => { document.head.removeChild(style); };
   }, []);
 
   return (
@@ -2123,9 +2193,13 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
 // Helper function to get initial users
 const getInitialUsers = (): User[] => {
   if (typeof window === 'undefined') return [];
-  const storedUsers = localStorage.getItem('ats_users');
-  if (storedUsers) {
-    return JSON.parse(storedUsers);
+  try {
+    const storedUsers = localStorage.getItem('ats_users');
+    if (storedUsers) {
+      return JSON.parse(storedUsers);
+    }
+  } catch (e) {
+    console.error('Error reading users from localStorage:', e);
   }
   // Create Default Admin
   const initialUsers: User[] = [{
@@ -2138,16 +2212,24 @@ const getInitialUsers = (): User[] => {
     email: 'admin@atspro.com',
     credits: 100 // Admin default
   }];
-  localStorage.setItem('ats_users', JSON.stringify(initialUsers));
+  try {
+    localStorage.setItem('ats_users', JSON.stringify(initialUsers));
+  } catch (e) {
+    console.error('Error saving users to localStorage:', e);
+  }
   return initialUsers;
 };
 
 // Helper function to get initial current user
 const getInitialCurrentUser = (): User | null => {
   if (typeof window === 'undefined') return null;
-  const activeSession = localStorage.getItem('ats_active_user');
-  if(activeSession) {
-    return JSON.parse(activeSession);
+  try {
+    const activeSession = localStorage.getItem('ats_active_user');
+    if(activeSession) {
+      return JSON.parse(activeSession);
+    }
+  } catch (e) {
+    console.error('Error reading current user from localStorage:', e);
   }
   return null;
 };
@@ -2155,8 +2237,13 @@ const getInitialCurrentUser = (): User | null => {
 // Helper function to get initial app view
 const getInitialAppView = (): string => {
   if (typeof window === 'undefined') return 'login';
-  const activeSession = localStorage.getItem('ats_active_user');
-  return activeSession ? 'optimizer' : 'login';
+  try {
+    const activeSession = localStorage.getItem('ats_active_user');
+    return activeSession ? 'optimizer' : 'login';
+  } catch (e) {
+    console.error('Error reading app view from localStorage:', e);
+    return 'login';
+  }
 };
 
 export default function App() {
@@ -2194,13 +2281,25 @@ export default function App() {
 
   // ROUTER
   if (appView === 'login') {
-    return <LoginView onLogin={handleLogin} />;
+    return (
+      <ErrorBoundary>
+        <LoginView onLogin={handleLogin} />
+      </ErrorBoundary>
+    );
   }
 
   if (appView === 'admin' && currentUser?.role === 'admin') {
-    return <AdminDashboard currentUser={currentUser} users={users} setUsers={setUsers} onClose={() => setAppView('optimizer')} onLogout={handleLogout} />;
+    return (
+      <ErrorBoundary>
+        <AdminDashboard currentUser={currentUser} users={users} setUsers={setUsers} onClose={() => setAppView('optimizer')} onLogout={handleLogout} />
+      </ErrorBoundary>
+    );
   }
 
   // Fallback to Main App
-  return <OptimizerView currentUser={currentUser as User} onLogout={handleLogout} onGoToAdmin={handleNavigateAdmin} />;
+  return (
+    <ErrorBoundary>
+      <OptimizerView currentUser={currentUser as User} onLogout={handleLogout} onGoToAdmin={handleNavigateAdmin} />
+    </ErrorBoundary>
+  );
 }
