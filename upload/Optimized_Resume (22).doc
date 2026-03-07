@@ -1,0 +1,106 @@
+
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>Export</title>
+        <style>
+          /* STRICT A4 PAGE LAYOUT - 0.95cm margins for perfect one-page fit */
+          @page {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm; 
+              mso-page-orientation: portrait;
+          }
+          @page WordSection1 {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm;
+          }
+          div.WordSection1 {
+              page: WordSection1;
+          }
+          /* Global Resets - COMPACT LAYOUT */
+          body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 12.0pt; 
+            line-height: 1.10; 
+            color: #000000; 
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+          }
+          /* Force Single Column Flow */
+          div, p, ul, li, h1, h2, h3, h4 {
+            display: block !important;
+            width: 100% !important;
+            float: none !important;
+            clear: both !important;
+          }
+          /* Header: Name AND Section Titles - SAME STYLE */
+          h1 { 
+            font-size: 12pt; 
+            font-weight: bold; 
+            text-align: left; 
+            text-transform: uppercase;
+            color: #000000;
+            margin: 0 0 2pt 0; 
+            padding: 0;
+          }
+          /* Header: Contact - LEFT ALIGNED */
+          p.contact {
+            text-align: left; 
+            font-size: 11pt; 
+            margin: 0 0 6pt 0; 
+            color: #000000;
+          }
+          /* Section Headers - SAME AS H1 STYLE */
+          h3 { 
+            font-size: 12pt; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            text-align: left; 
+            border: none !important;
+            text-decoration: none !important;
+            margin-top: 6pt; 
+            margin-bottom: 2pt;
+            color: #000000;
+          }
+          /* Job Titles - JUSTIFIED */
+          h4 {
+            font-size: 12pt;
+            margin-top: 2pt;
+            margin-bottom: 0;
+            color: #000000;
+            font-weight: bold;
+            text-align: justify;
+          }
+          /* Body Text - JUSTIFIED */
+          p { 
+            margin: 0;
+            text-align: justify;
+            margin-bottom: 2pt; 
+          }
+          /* Bullets - JUSTIFIED, ULTRA TIGHT spacing */
+          ul { 
+            margin: 0 !important;
+            padding-left: 12pt; 
+            list-style-type: disc;
+          }
+          li { 
+            margin: 0 !important;
+            padding-left: 0;
+            list-style-type: disc;
+            text-align: justify;
+          }
+          /* Clean Bold */
+          strong, b {
+            color: #000000;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="WordSection1">
+          <h1>ZAKARIYA NADIF</h1><p class="contact">Rabat, Morocco | +212 694-122414 | zakaria.n004@gmail.com</p><h3>PROFESSIONAL SUMMARY</h3><p>Trilingual aviation professional committed to excellence in customer service and passenger safety. Expertise in compliance and situational awareness in high-pressure environments. Ready to apply skills in airline and hospitality sectors.</p><h3>EXPERIENCE</h3><h4><strong>Administrative Agent</strong> | <strong>BIOLOGIA LABORATORY</strong>, Rabat, Morocco | <strong>2023 to Present</strong></h4><ul><li>Provided trilingual client support in compliance with industry regulations.</li><li>Optimized patient scheduling maintaining 100% data accuracy.</li><li>Coordinated cross-departmental communications ensuring operational efficiency.</li><li>Resolved complex inquiries, enhancing client service reputation.</li></ul><h4><strong>Sales Assistant and Customer Services Agent</strong> | <strong>MAESTRO Fashion Shop</strong>, Rabat, Morocco | <strong>2022</strong></h4><ul><li>Delivered personalized service in a high-volume retail environment.</li><li>Managed POS operations ensuring smooth transactions and inventory accuracy.</li><li>Supported visual merchandising to enhance customer shopping experiences.</li></ul><h3>EDUCATION</h3><h4><strong>Aviation and Hospitality Vocational Training</strong> | <strong>INFOHAS</strong> | <strong>2025</strong></h4><ul><li>In-Flight Service Standards</li><li>Premium Guest Experience</li></ul><h4><strong>Specialized Technician, Business Management</strong> | <strong>OFPPT</strong> | <strong>2022</strong></h4><ul><li>Operational Compliance</li><li>Emergency Procedures</li></ul><h3>SKILLS</h3><ul><li><strong>Technical:</strong> ATP Certificate, Type Ratings (B737, A320), CFII, Class 1 Medical</li><li><strong>Soft Skills:</strong> Decision Making Under Pressure, Situational Awareness, CRM, Multi-Crew Coordination</li><li><strong>Languages:</strong> Arabic, French, English</li></ul>
+        </div>
+      </body>
+    </html>
+  

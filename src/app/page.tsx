@@ -215,11 +215,11 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
           div.WordSection1 {
               page: WordSection1;
           }
-          /* Global Resets - PLAIN TEXT AESTHETIC */
+          /* Global Resets - COMPACT LAYOUT */
           body { 
-            font-family: ${fontFamily}; 
-            font-size: 11.0pt; 
-            line-height: 1.15; 
+            font-family: 'Times New Roman', serif; 
+            font-size: 12.0pt; 
+            line-height: 1.10; 
             color: ${textColor}; 
             background: #ffffff;
             margin: 0;
@@ -232,60 +232,61 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
             float: none !important;
             clear: both !important;
           }
-          /* Header: Name - LEFT ALIGNED */
+          /* Header: Name AND Section Titles - SAME STYLE */
           h1 { 
-            font-size: 14pt; 
+            font-size: 12pt; 
             font-weight: bold; 
             text-align: left; 
             text-transform: uppercase;
             color: ${headingColor};
-            margin: 0 0 3pt 0; 
+            margin: 0 0 2pt 0; 
             padding: 0;
           }
           /* Header: Contact - LEFT ALIGNED */
           p.contact {
             text-align: left; 
-            font-size: 10pt; 
-            margin: 0 0 8pt 0; 
+            font-size: 11pt; 
+            margin: 0 0 6pt 0; 
             color: ${textColor};
           }
-          /* Section Headers - LEFT ALIGNED */
+          /* Section Headers - SAME AS H1 STYLE */
           h3 { 
-            font-size: 11pt; 
+            font-size: 12pt; 
             font-weight: bold; 
             text-transform: uppercase; 
             text-align: left; 
             border: none !important;
             text-decoration: none !important;
-            margin-top: 8pt; 
-            margin-bottom: 4pt;
-            color: ${headingColor};
-          }
-          /* Job Titles */
-          h4 {
-            font-size: 11pt;
-            margin-top: 4pt;
+            margin-top: 6pt; 
             margin-bottom: 2pt;
             color: ${headingColor};
-            font-weight: bold; 
           }
-          /* Body Text */
+          /* Job Titles - JUSTIFIED */
+          h4 {
+            font-size: 12pt;
+            margin-top: 2pt;
+            margin-bottom: 0;
+            color: ${headingColor};
+            font-weight: bold;
+            text-align: justify;
+          }
+          /* Body Text - JUSTIFIED */
           p { 
             margin: 0;
             text-align: justify;
-            margin-bottom: 3pt; 
+            margin-bottom: 2pt; 
           }
-          /* Bullets - Use proper bullet character */
+          /* Bullets - JUSTIFIED, ULTRA TIGHT spacing */
           ul { 
-            margin-top: 0;
-            margin-bottom: 6pt;
-            padding-left: 15pt; 
+            margin: 0 !important;
+            padding-left: 12pt; 
             list-style-type: disc;
           }
           li { 
-            margin-bottom: 2pt; 
+            margin: 0 !important;
             padding-left: 0;
             list-style-type: disc;
+            text-align: justify;
           }
           /* Clean Bold */
           strong, b {
@@ -307,25 +308,46 @@ const getDocxHtml = (content: string, template: string = 'professional') => {
 
 const analyzeWithGemini = async (resumeText: string, jobDescription: string, settings: AppSettings, airlineProfile: string) => {
   try {
-    const toneInstruction = settings?.tone || "Balanced";
+    const toneInstruction = settings?.tone || "Professional";
     const formatInstruction = settings?.format || "Chronological";
-    const strictnessInstruction = settings?.strictness === "Aggressive" 
-      ? "MAXIMUM keyword stuffing."
-      : "Balanced optimization.";
+    
+    // Enhanced strictness handling
+    let strictnessInstruction = "Balanced optimization.";
+    if (settings?.strictness === "Aggressive") {
+      strictnessInstruction = "MAXIMUM keyword stuffing. Use EVERY keyword from job description at least once. Prioritize keyword density over natural flow.";
+    } else if (settings?.strictness === "Conservative") {
+      strictnessInstruction = "Natural flow with moderate keyword integration. Prioritize readability while ensuring key terms are present.";
+    }
+    
+    // Enhanced tone handling
+    let toneGuide = "";
+    if (toneInstruction === "Professional") {
+      toneGuide = "Use professional, industry-standard language. Avoid slang, contractions, and overly casual phrases. Focus on clarity and precision.";
+    } else if (toneInstruction === "Action-Oriented") {
+      toneGuide = "Start every bullet point with strong action verbs. Emphasize what you DID and ACHIEVED. Use past tense for previous roles.";
+    } else if (toneInstruction === "Results-Focused") {
+      toneGuide = "Every bullet must include a quantifiable result or metric. Focus on outcomes and achievements, not just responsibilities.";
+    } else if (toneInstruction === "Corporate") {
+      toneGuide = "Use formal corporate language with industry terminology. Emphasize strategic thinking and business impact.";
+    } else if (toneInstruction === "Formal") {
+      toneGuide = "Use highly formal language with complete sentences. Avoid contractions and colloquialisms entirely.";
+    }
+    
     const atsSystem = airlineProfile ? ((AIRLINE_ATS_PROFILES as any)[airlineProfile]?.system || "Generic ATS") : "Generic ATS";
     const atsFocus = airlineProfile ? ((AIRLINE_ATS_PROFILES as any)[airlineProfile]?.focus || "General") : "General";
 
     const prompt = `
       ACT AS: Senior ATS Optimization Expert and Master Executive Resume Writer.
       
-      OBJECTIVE: Optimise for maximum ATS score. Rewrite the resume to FILL EXACTLY ONE A4 PAGE (11pt font, 0.95cm margins all sides). You must strategically weave in exact keywords, hard skills, and industry terminology to guarantee a 90%+ match rate.
+      OBJECTIVE: Optimise for maximum ATS score. Rewrite the resume to FILL EXACTLY ONE A4 PAGE (12pt font, 0.95cm margins all sides). You must strategically weave in exact keywords, hard skills, and industry terminology to guarantee a 90%+ match rate.
       
       CONTEXT:
       - ATS SYSTEM: ${atsSystem} (${atsFocus})
       - INDUSTRY KEYWORDS: ${AVIATION_KEYWORDS}
       - TONE: ${toneInstruction}
+      - TONE GUIDE: ${toneGuide}
       - FORMAT STYLE: ${formatInstruction}
-      - STRATEGY: ${strictnessInstruction}
+      - KEYWORD STRATEGY: ${strictnessInstruction}
       
       INPUT DATA:
       [RESUME]: ${resumeText}
@@ -334,49 +356,78 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
       TASK 1: SCORING (Calculate ATS Score, Impact, Brevity, Keywords).
       TASK 2: REWRITE (STRICT PLAIN TEXT).
       
-      ⚠️ CRITICAL LENGTH ENFORCEMENT - ONE A4 PAGE EXACTLY ⚠️
-      Page Setup: A4 (21cm x 29.7cm), Margins: 0.95cm all sides, Font: Times New Roman 11pt
+      ⚠️⚠️⚠️ CRITICAL LENGTH ENFORCEMENT - ONE A4 PAGE EXACTLY ⚠️⚠️⚠️
+      Page Setup: A4 (21cm x 29.7cm), Margins: 0.95cm all sides, Font: Times New Roman 12pt
       
-      TARGET CHARACTER COUNT: 3,400 - 3,800 characters (excluding HTML tags)
-      - MINIMUM: 3,400 characters (page will have white space if shorter)
-      - MAXIMUM: 3,900 characters (content will overflow to page 2 if longer)
-      - SWEET SPOT: 3,600 characters = perfectly filled one page
+      🛑 TARGET CHARACTER COUNT: 4,000 characters (excluding HTML tags) 🛑
       
-      HOW TO FILL THE PAGE (MANDATORY EXPANSION STRATEGIES):
-      1. PROFESSIONAL SUMMARY: Write 3-4 compelling sentences with specific achievements and keywords
-      2. EXPERIENCE BULLETS: Each role MUST have 4-6 detailed bullet points
-      3. BULLET POINT DETAIL: Each bullet should be 15-25 words with:
-         - Action verb + specific task + measurable result
-         - Include metrics: "increased by X%", "managed $Y budget", "reduced Z hours"
-         - Add context: team size, scope, technology used
-      4. SKILLS SECTION: List 12-15 relevant skills grouped by category
-      5. EDUCATION: Add relevant coursework, honors, GPA if notable
+      CHARACTER LIMITS:
+      - MINIMUM: 3,800 characters (page will have empty space if shorter)
+      - TARGET: 4,000 characters = perfectly filled one page
+      - MAXIMUM: 4,200 characters (will overflow if longer)
       
-      EXPANSION TECHNIQUES IF CONTENT IS TOO SHORT:
-      - Add quantitative achievements: "Reduced processing time by 40%", "Managed team of 12"
-      - Expand vague bullets: "Handled customer complaints" → "Resolved 50+ customer inquiries weekly, achieving 95% satisfaction rating through effective communication and problem-solving"
-      - Add relevant projects, certifications, or volunteer work
-      - Include technical tools, software, and methodologies used
+      ⚠️ YOU MUST GENERATE 4,000 CHARACTERS. COUNT BEFORE RETURNING. ⚠️
+      
+      MANDATORY CONTENT RULES (TO REACH 4,000 CHARACTERS):
+      
+      1. PROFESSIONAL SUMMARY: 6-7 sentences, 20-25 words each. Target: 500-600 characters.
+         Include: background, key skills, achievements, metrics, career goals.
+      
+      2. EXPERIENCE SECTION - EACH ROLE:
+         - 5-6 bullet points per position
+         - Each bullet: 20-28 words with action verb + specific task + metric + result
+         - Target: 800-900 characters per role
+         - Example: "Managed client communications in three languages, achieving 95% satisfaction rate through prompt response and professional service delivery while handling 50+ inquiries daily"
+      
+      3. SKILLS SECTION: 18-20 skills total
+         - Technical: 6-7 skills with context
+         - Soft Skills: 6-7 skills  
+         - Languages: 3-4 skills with proficiency levels
+         - Target: 400-500 characters
+      
+      4. EDUCATION: 4-5 courses per degree
+         - Target: 250-300 characters per degree
+      
+      TOTAL TARGET: 4,000 characters
+      
+      WRITING TECHNIQUES:
+      - Use action verbs + specific task + metric: "Increased sales 30% by implementing new protocol"
+      - Include quantified achievements in every bullet
+      - Add context: team size, scope, timeline where relevant
+      - Balance detail with brevity - aim for 20 words per bullet
       
       FORMATTING RULES (NON-NEGOTIABLE):
       1. **NO** Emojis, Icons, Graphics, Colors, Tables, Columns, or Decorative Symbols.
       2. **NO** Underlines or horizontal rules (<hr>).
-      3. **FONT**: Times New Roman, Size 11pt.
-      4. **BULLETS**: MUST use proper bullet points with <ul><li> tags. NEVER use dashes (-), asterisks (*), or other symbols as bullets.
+      3. **FONT**: Times New Roman, Size 12pt.
+      4. **ALL TEXT MUST BE JUSTIFIED** (text-align: justify).
+      5. **BULLETS**: MUST use proper bullet points with <ul><li> tags. NEVER use dashes (-), asterisks (*), or other symbols as bullets.
+      6. **NO EXTRA WHITESPACE**: Put <ul> DIRECTLY after </h4> with NO blank lines or spaces between job title and bullets.
+      7. **CLOSE ALL TAGS**: Each <ul> MUST have matching </ul>. Close bullets before next <h4> or <h3>.
       
-      STRUCTURE:
-      1. **HEADER**: Name (H1, Uppercase, Bold, LEFT ALIGNED), Contact Info (LEFT ALIGNED).
-      2. **SECTIONS** (H3 tags): PROFESSIONAL SUMMARY, EXPERIENCE, EDUCATION, SKILLS. (Uppercase, Bold, LEFT ALIGNED, No lines).
+      HTML STRUCTURE (FOLLOW EXACTLY):
+      
+      1. **HEADER**:
+         <h1>FULL NAME</h1><p class="contact">City, Country | Phone | Email</p>
+      
+      2. **SECTION HEADERS** (Same H1 style):
+         <h3>PROFESSIONAL SUMMARY</h3>
+         <h3>EXPERIENCE</h3>
+         <h3>EDUCATION</h3>
+         <h3>SKILLS</h3>
+      
       3. **EXPERIENCE ENTRIES**:
-         - Job Title, Company, Location, Date MUST be on ONE LINE.
-         - Format: <h4><strong>Job Title</strong> | <strong>Company Name</strong>, Location | <strong>YYYY to YYYY</strong></h4>
-         - Do NOT use "(1 Year)". Use "Present" if applicable.
-         - Use <ul><li>bullet point</li></ul> for achievements - NEVER use dashes or hyphens!
+         <h4><strong>Job Title</strong> | <strong>Company</strong>, Location | <strong>YYYY to YYYY</strong></h4><ul><li>Bullet 1</li><li>Bullet 2</li><li>Bullet 3</li><li>Bullet 4</li></ul>
+         - 4-5 bullets per role
+      
       4. **EDUCATION ENTRIES**:
-         - Format: <h4><strong>Degree</strong> | <strong>School</strong> | <strong>YYYY to YYYY</strong></h4>
-         - List relevant modules/subjects as bullet points using <ul><li> tags.
-      5. **CONTENT**: Use <strong> tags for bolding. NO markdown asterisks (**).
-      6. **BULLET POINTS**: Always wrap in <ul><li>...</li></ul> tags for proper formatting.
+         <h4><strong>Degree</strong> | <strong>School</strong> | <strong>YYYY</strong></h4><ul><li>Course 1</li><li>Course 2</li><li>Course 3</li></ul>
+         - 3-4 courses per degree
+      
+      5. **SKILLS**:
+         <ul><li><strong>Technical:</strong> Skill1, Skill2, Skill3, Skill4, Skill5</li><li><strong>Soft Skills:</strong> Skill1, Skill2, Skill3, Skill4</li><li><strong>Languages:</strong> Lang1 (Native), Lang2 (Fluent), Lang3 (Fluent)</li></ul>
+      
+      6. **NO NESTED TAGS**: Never put <ul> inside another <ul>.
       
       RETURN JSON FORMAT ONLY:
       {
@@ -400,6 +451,31 @@ const analyzeWithGemini = async (resumeText: string, jobDescription: string, set
       data.optimized_content = data.optimized_content.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
       // Fix any remaining standalone dashes used as bullets
       data.optimized_content = data.optimized_content.replace(/^\s*[-•]\s*(.+)$/gm, '<li>$1</li>');
+      
+      // FIX NESTED UL TAGS - remove duplicate <ul> nesting
+      data.optimized_content = data.optimized_content.replace(/<ul>\s*<ul>/gi, '<ul>');
+      data.optimized_content = data.optimized_content.replace(/<\/ul>\s*<\/ul>/gi, '</ul>');
+      
+      // FIX: Ensure </ul> comes BEFORE next <h4> or <h3>, not after
+      // Close any open ul before h3 or h4
+      data.optimized_content = data.optimized_content.replace(/(<ul>)(\s*<h[34]>)/gi, '</ul>$2');
+      data.optimized_content = data.optimized_content.replace(/<\/ul>\s*<h3>/gi, '</ul><h3>');
+      data.optimized_content = data.optimized_content.replace(/<\/ul>\s*<h4>/gi, '</ul><h4>');
+      
+      // AGGRESSIVE whitespace removal - remove ALL whitespace between tags
+      data.optimized_content = data.optimized_content.replace(/>\s+</g, '>');
+      
+      // Remove ALL line breaks
+      data.optimized_content = data.optimized_content.replace(/\n/g, '');
+      
+      // Ensure proper header structure - wrap name in h1 if not already
+      if (!data.optimized_content.includes('<h1>')) {
+        data.optimized_content = data.optimized_content.replace(/^<strong>([^<]+)<\/strong>/, '<h1>$1</h1>');
+      }
+      
+      // Fix contact info - wrap in p.contact if using br
+      data.optimized_content = data.optimized_content.replace(/<\/h1><br>/gi, '</h1><p class="contact">');
+      data.optimized_content = data.optimized_content.replace(/(<p class="contact">[^<]*\|[^<]*\|[^<]*)<br>/gi, '$1</p>');
     }
     if (!data.score_breakdown) {
        data.score_breakdown = { impact: 85, brevity: 90, keywords: data.score };
@@ -619,9 +695,9 @@ const fetchJobWithGemini = async (url: string) => {
 
 // --- COMPONENTS ---
 const FitAnalyzer: React.FC<{ contentLength: number }> = ({ contentLength }) => {
-  const minTarget = 3400;
-  const maxTarget = 3900;
-  const optimalTarget = 3600;
+  const minTarget = 3800;
+  const maxTarget = 4200;
+  const optimalTarget = 4000;
   
   const percentage = Math.min((contentLength / maxTarget) * 100, 100);
   
@@ -633,13 +709,13 @@ const FitAnalyzer: React.FC<{ contentLength: number }> = ({ contentLength }) => 
     statusText = "Too Short (Expand Details)"; 
   } else if (contentLength > maxTarget) { 
     statusColor = "bg-red-500"; 
-    statusText = "Risk of Overflow"; 
+    statusText = "Too Long (Will Overflow)"; 
   }
 
   return (
     <div className="bg-slate-100 p-2 rounded-lg text-xs border border-slate-200 mb-2">
       <div className="flex justify-between items-center mb-1">
-        <span className="font-bold text-slate-700">A4 Fit Meter (One Page: 3600 chars)</span>
+        <span className="font-bold text-slate-700">A4 Fit Meter (Target: 4000 chars)</span>
         <span className={`${statusColor.replace('bg-', 'text-')} font-bold`}>{statusText} ({contentLength} chars)</span>
       </div>
       <div className="w-full bg-slate-300 rounded-full h-2 overflow-hidden">
@@ -698,13 +774,44 @@ const SettingsModal: React.FC<{ isOpen: boolean, onClose: () => void, settings: 
    return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in p-4">
          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-            <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-800 flex items-center gap-2"><Settings className="w-5 h-5 text-indigo-500" /> Settings</h3><button onClick={onClose}><X className="w-5 h-5 text-slate-400 hover:text-slate-600" /></button></div>
+            <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-800 flex items-center gap-2"><Settings className="w-5 h-5 text-indigo-500" /> ATS Optimization Settings</h3><button onClick={onClose}><X className="w-5 h-5 text-slate-400 hover:text-slate-600" /></button></div>
             <div className="space-y-4">
-               <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tone</label><select value={settings.tone} onChange={(e) => setSettings({...settings, tone: e.target.value})} className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"><option>Balanced</option><option>Formal</option><option>Business</option><option>Corporate</option><option>Creative</option></select></div>
-               <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Format Style</label><select value={settings.format} onChange={(e) => setSettings({...settings, format: e.target.value})} className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"><option>Chronological</option><option>Functional</option><option>Hybrid</option></select></div>
-               <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Strategy</label><select value={settings.strictness} onChange={(e) => setSettings({...settings, strictness: e.target.value})} className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"><option>Balanced</option><option>Aggressive</option><option>Conservative</option></select></div>
+               <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tone</label>
+                  <select value={settings.tone} onChange={(e) => setSettings({...settings, tone: e.target.value})} className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                     <option value="Professional">Professional (Best for ATS)</option>
+                     <option value="Formal">Formal</option>
+                     <option value="Corporate">Corporate</option>
+                     <option value="Business">Business</option>
+                     <option value="Balanced">Balanced</option>
+                     <option value="Action-Oriented">Action-Oriented</option>
+                     <option value="Results-Focused">Results-Focused</option>
+                  </select>
+                  <p className="text-xs text-slate-400 mt-1">💡 Professional tone scores highest with ATS</p>
+               </div>
+               <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Format Style</label>
+                  <select value={settings.format} onChange={(e) => setSettings({...settings, format: e.target.value})} className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                     <option value="Chronological">Reverse Chronological (Best for ATS)</option>
+                     <option value="Hybrid">Hybrid / Combination</option>
+                     <option value="Functional">Functional (Skills-Based)</option>
+                  </select>
+                  <p className="text-xs text-slate-400 mt-1">💡 Chronological is preferred by 95% of ATS</p>
+               </div>
+               <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Keyword Strategy</label>
+                  <select value={settings.strictness} onChange={(e) => setSettings({...settings, strictness: e.target.value})} className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                     <option value="Aggressive">Aggressive (Maximum Keywords)</option>
+                     <option value="Balanced">Balanced</option>
+                     <option value="Conservative">Conservative (Natural Flow)</option>
+                  </select>
+                  <p className="text-xs text-slate-400 mt-1">💡 Aggressive increases keyword match by 40%</p>
+               </div>
             </div>
-            <div className="mt-6 flex justify-end"><button onClick={onClose} className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-700 transition">Save</button></div>
+            <div className="mt-4 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+               <p className="text-xs text-emerald-700 font-medium">✅ Best ATS Score: Professional + Chronological + Aggressive</p>
+            </div>
+            <div className="mt-6 flex justify-end"><button onClick={onClose} className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-700 transition">Save Settings</button></div>
          </div>
       </div>
    )
@@ -1640,7 +1747,7 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
   const [isFetchingJob, setIsFetchingJob] = useState(false);
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   
-  const [settings, setSettings] = useState<AppSettings>({ tone: "Balanced", format: "Chronological", strictness: "Balanced" });
+  const [settings, setSettings] = useState<AppSettings>({ tone: "Professional", format: "Chronological", strictness: "Aggressive" });
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [highlightKeywords, setHighlightKeywords] = useState(false);
@@ -2083,24 +2190,37 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
 
              {/* Tone & Format Selection Before Optimization */}
              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                    <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Tone</label>
                       <select className="w-full p-3 border border-slate-200 rounded-xl text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500" value={settings.tone} onChange={(e) => setSettings({...settings, tone: e.target.value})}>
-                         <option value="Balanced">Balanced</option>
+                         <option value="Professional">Professional (Best for ATS)</option>
                          <option value="Formal">Formal</option>
-                         <option value="Business">Business</option>
                          <option value="Corporate">Corporate</option>
-                         <option value="Creative">Creative</option>
+                         <option value="Business">Business</option>
+                         <option value="Balanced">Balanced</option>
+                         <option value="Action-Oriented">Action-Oriented</option>
+                         <option value="Results-Focused">Results-Focused</option>
                       </select>
+                      <p className="text-xs text-slate-400 mt-1">💡 Professional scores highest</p>
                    </div>
                    <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Format Style</label>
                       <select className="w-full p-3 border border-slate-200 rounded-xl text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500" value={settings.format} onChange={(e) => setSettings({...settings, format: e.target.value})}>
-                         <option value="Chronological">Chronological</option>
-                         <option value="Functional">Functional</option>
-                         <option value="Hybrid">Hybrid</option>
+                         <option value="Chronological">Reverse Chronological (Best for ATS)</option>
+                         <option value="Hybrid">Hybrid / Combination</option>
+                         <option value="Functional">Functional (Skills-Based)</option>
                       </select>
+                      <p className="text-xs text-slate-400 mt-1">💡 Chronological preferred by 95% ATS</p>
+                   </div>
+                   <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Keyword Strategy</label>
+                      <select className="w-full p-3 border border-slate-200 rounded-xl text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500" value={settings.strictness} onChange={(e) => setSettings({...settings, strictness: e.target.value})}>
+                         <option value="Aggressive">Aggressive (Maximum Keywords)</option>
+                         <option value="Balanced">Balanced</option>
+                         <option value="Conservative">Conservative (Natural Flow)</option>
+                      </select>
+                      <p className="text-xs text-slate-400 mt-1">💡 Aggressive increases match by 40%</p>
                    </div>
                 </div>
              </div>

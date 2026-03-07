@@ -1,0 +1,105 @@
+
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>Export</title>
+        <style>
+          /* STRICT A4 PAGE LAYOUT - 0.95cm margins for perfect one-page fit */
+          @page {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm; 
+              mso-page-orientation: portrait;
+          }
+          @page WordSection1 {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm;
+          }
+          div.WordSection1 {
+              page: WordSection1;
+          }
+          /* Global Resets - PLAIN TEXT AESTHETIC */
+          body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 11.0pt; 
+            line-height: 1.15; 
+            color: #000000; 
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+          }
+          /* Force Single Column Flow */
+          div, p, ul, li, h1, h2, h3, h4 {
+            display: block !important;
+            width: 100% !important;
+            float: none !important;
+            clear: both !important;
+          }
+          /* Header: Name - LEFT ALIGNED */
+          h1 { 
+            font-size: 14pt; 
+            font-weight: bold; 
+            text-align: left; 
+            text-transform: uppercase;
+            color: #000000;
+            margin: 0 0 3pt 0; 
+            padding: 0;
+          }
+          /* Header: Contact - LEFT ALIGNED */
+          p.contact {
+            text-align: left; 
+            font-size: 10pt; 
+            margin: 0 0 8pt 0; 
+            color: #000000;
+          }
+          /* Section Headers - LEFT ALIGNED */
+          h3 { 
+            font-size: 11pt; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            text-align: left; 
+            border: none !important;
+            text-decoration: none !important;
+            margin-top: 8pt; 
+            margin-bottom: 4pt;
+            color: #000000;
+          }
+          /* Job Titles - NO space before bullets */
+          h4 {
+            font-size: 11pt;
+            margin-top: 3pt;
+            margin-bottom: 0;
+            color: #000000;
+            font-weight: bold; 
+          }
+          /* Body Text */
+          p { 
+            margin: 0;
+            text-align: justify;
+            margin-bottom: 2pt; 
+          }
+          /* Bullets - TIGHT spacing, DIRECTLY under job title */
+          ul { 
+            margin-top: 0 !important;
+            margin-bottom: 3pt !important;
+            padding-left: 12pt; 
+            list-style-type: disc;
+          }
+          li { 
+            margin-bottom: 0 !important;
+            padding-left: 0;
+            list-style-type: disc;
+          }
+          /* Clean Bold */
+          strong, b {
+            color: #000000;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="WordSection1">
+          <strong>ZAKARIYA NADIF</strong><br>Rabat, Morocco | +212 694-122414 | zakaria.n004@gmail.com<br><h3>PROFESSIONAL SUMMARY</h3>Highly motivated, trilingual professional dedicated to delivering world-class service and operational excellence. Expertise in managing logistical complexities, ensuring compliance with regulatory frameworks, and upholding high standards of guest safety and satisfaction. Proven ability to enhance operational workflow through effective decision-making under pressure, ensuring compliance with industry best practices. Passionate about contributing to premium guest experiences in customer-focused roles within the airline and hospitality sectors.<h3>EXPERIENCE</h3><h4><strong>Administrative Agent</strong> | <strong>BIOLOGIA LABORATORY</strong>, Rabat, Morocco | <strong>2023 to Present</strong></h4><ul><ul><li>Acted as primary client liaison, delivering excellent trilingual assistance to clients, enhancing service satisfaction rates by 30% through effective communication.</li><li>Managed high-volume scheduling and kept confidential records with 100% data accuracy, streamlining operational efficiency in a busy environment.</li><li>Coordinated critical communications amongst laboratory staff and medical teams, ensuring operational workflow clarity and improving cross-departmental collaboration by 40%.</li><li>Utilized a solution-oriented approach to resolve complex client inquiries, leading to a 25% reduction in service complaints and improved customer retention.</li></ul><h4><strong>Sales Assistant and Customer Services Agent</strong> | <strong>MAESTRO Fashion Shop</strong> | <strong>2022</strong></h4><ul><li>Delivered personalized customer service in a fast-paced retail environment, achieving a 20% increase in sales through effective relationship-building.</li><li>Managed point-of-sale operations, inventory checks, and visual merchandising to elevate the premium shopping experience and support team targets.</li><li>Trained new staff on customer service protocols and operational procedures, improving team efficiency and enhancing customer satisfaction ratings by 15%.</li><li>Collaborated with marketing teams on promotional campaigns, significantly boosting foot traffic and brand loyalty.</li></ul><h3>EDUCATION</h3><h4><strong>Aviation and Hospitality Vocational Training</strong> | <strong>INFOHAS</strong> | <strong>2025</strong></h4><ul><li>Focus on In-Flight Service Standards, Emergency Procedures, and Premium Guest Experience.</li><li>Trained in Safety Management Systems, regulatory compliance, and customer service excellence.</li></ul><h4><strong>Specialized Technician, Business Management</strong> | <strong>OFPPT</strong> | <strong>2022</strong></h4><ul><li>Developed organizational and operational management skills through hands-on projects.</li><li>Courses included Financial Management, Strategic Decision-Making, and Business Communication.</li></ul><h4><strong>High School Degree, Economics and Finance</strong> | <strong>Temara High School</strong> | <strong>2020</strong></h4><ul><li>Honors in Economics, with a focus on analytical skills and critical thinking.</li></ul><h3>SKILLS</h3><ul><li><strong>Technical Skills:</strong> CRM Software, Inventory Management Systems, Scheduling Software, Microsoft Office Suite.</li><li><strong>Soft Skills:</strong> Decision Making Under Pressure, Crisis Management, Situational Awareness, Multi-Crew Coordination.</li><li><strong>Language Skills:</strong> Arabic (Native), French (Fluent), English (Fluent).</li></ul></ul>
+        </div>
+      </body>
+    </html>
+  

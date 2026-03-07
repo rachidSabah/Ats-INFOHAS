@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   // Required for @cloudflare/next-on-pages
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
-  },
+  serverExternalPackages: ['@prisma/client', 'prisma'],
 };
 
 export default nextConfig;
