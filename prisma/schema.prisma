@@ -1,7 +1,7 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Looking for ways to speed up your queries, or scale easily with serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
@@ -15,10 +15,86 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      String   @default("user")      // 'admin' or 'user'
+  status    String   @default("active")    // 'active' or 'suspended'
+  fullName  String?
   email     String   @unique
-  name      String?
+  credits   Int      @default(2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String?
+  userId    String?
+  username  String?
+  timestamp DateTime @default(now())
+}
+
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AIProvider {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  enabled   Boolean  @default(false)
+  apiKey    String?
+  endpoint  String?
+  model     String?
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmailProvider {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  enabled   Boolean  @default(false)
+  host      String?
+  port      Int?
+  username  String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DNSDomain {
+  id        String   @id @default(cuid())
+  domain    String   @unique
+  enabled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model APIKey {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  key       String
+  enabled   Boolean  @default(true)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ResumeCache {
+  id           String   @id @default(cuid())
+  userId       String
+  resumeText   String?
+  jobText      String?
+  jobUrl       String?
+  result       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([userId])
 }
 
 model Post {

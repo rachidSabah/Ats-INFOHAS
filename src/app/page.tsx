@@ -845,16 +845,25 @@ const HistorySidebar: React.FC<{ isOpen: boolean, onClose: () => void, history: 
 
 // --- ADMIN DASHBOARD AND LOGIN ---
 
-const LoginView: React.FC<{ onLogin: (u: string, p: string) => boolean }> = ({ onLogin }) => {
+const LoginView: React.FC<{ onLogin: (u: string, p: string) => Promise<boolean> }> = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = onLogin(username, password);
-    if (!success) {
-      setError("Invalid credentials or account suspended.");
+    setIsLoggingIn(true);
+    setError("");
+    try {
+      const success = await onLogin(username, password);
+      if (!success) {
+        setError("Invalid credentials or account suspended.");
+      }
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -878,18 +887,24 @@ const LoginView: React.FC<{ onLogin: (u: string, p: string) => boolean }> = ({ o
             <label className="block text-sm font-bold text-slate-700 mb-1">Password</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required />
           </div>
-          <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition shadow-md mt-2">Sign In</button>
+          <button type="submit" disabled={isLoggingIn} className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition shadow-md mt-2 flex items-center justify-center gap-2 disabled:opacity-70">
+            {isLoggingIn ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Signing in...</>
+            ) : (
+              'Sign In'
+            )}
+          </button>
         </form>
       </div>
     </div>
   );
 };
 
-const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any, onClose: () => void, onLogout: () => void }> = ({ currentUser, users, setUsers, onClose, onLogout }) => {
+const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any, refreshUsers: () => Promise<void>, onClose: () => void, onLogout: () => void }> = ({ currentUser, users, setUsers, refreshUsers, onClose, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   
   // -- ADMIN STATE MANAGEMENT --
-  const [logs, setLogs] = useState<any[]>(() => JSON.parse(localStorage.getItem('ats_audit_logs') || '[]'));
+  const [logs, setLogs] = useState<any[]>([]);
   const [systemSettings, setSystemSettings] = useState<any>(() => JSON.parse(localStorage.getItem('ats_sys_settings') || '{"budgetCap":1000,"charLimit":4000,"defaultCredits":2,"adminDefaultCredits":100,"smtpHost":"smtp.example.com","smtpPort":"587","smtpUser":"","smtpPass":"","stripeKey":"","paypalId":"","cfToken":""}'));
   const [apiKeys, setApiKeys] = useState<any[]>(() => JSON.parse(localStorage.getItem('ats_api_keys') || '[]'));
   const [dnsDomains, setDnsDomains] = useState<any[]>(() => JSON.parse(localStorage.getItem('ats_dns') || '[]'));
@@ -1002,17 +1017,42 @@ const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any
     }
   };
 
-  // Sync state
-  useEffect(() => { localStorage.setItem('ats_audit_logs', JSON.stringify(logs)); }, [logs]);
+  // Load audit logs from API
+  useEffect(() => {
+    const loadLogs = async () => {
+      try {
+        const response = await fetch('/api/audit');
+        const data = await response.json();
+        if (data.logs) {
+          setLogs(data.logs);
+        }
+      } catch (error) {
+        console.error('Failed to load audit logs:', error);
+      }
+    };
+    loadLogs();
+  }, []);
+
+  // Sync state (only for non-critical settings)
   useEffect(() => { localStorage.setItem('ats_sys_settings', JSON.stringify(systemSettings)); }, [systemSettings]);
   useEffect(() => { localStorage.setItem('ats_api_keys', JSON.stringify(apiKeys)); }, [apiKeys]);
   useEffect(() => { localStorage.setItem('ats_dns', JSON.stringify(dnsDomains)); }, [dnsDomains]);
   useEffect(() => { localStorage.setItem('ats_ai_providers', JSON.stringify(aiProviders)); }, [aiProviders]);
   useEffect(() => { localStorage.setItem('ats_email_providers', JSON.stringify(emailProviders)); }, [emailProviders]);
 
-  const addLog = (action: string, entity: string) => {
+  const addLog = async (action: string, entity: string) => {
     const newLog = { id: Date.now(), date: new Date().toLocaleString('en-GB'), user: currentUser.email || currentUser.username, action, entity, ip: '192.168.' + Math.floor(Math.random()*255) + '.' + Math.floor(Math.random()*255) };
     setLogs(prev => [newLog, ...prev].slice(0, 100));
+    // Send to API
+    try {
+      await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, details: entity, userId: currentUser.id, username: currentUser.username })
+      });
+    } catch (error) {
+      console.error('Failed to save audit log:', error);
+    }
   };
 
   const openUserModal = (user: any = null) => {
@@ -1026,43 +1066,145 @@ const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any
     setIsUserModalOpen(true);
   };
 
-  const handleSaveUser = (e: React.FormEvent) => {
+  const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingUser) {
-      const updatedUsers = users.map(u => {
-        if (String(u.id) === String(editingUser.id)) {
-          const updated: any = { ...u, ...userFormData };
-          if (!userFormData.password) updated.password = u.password;
-          return updated;
+    try {
+      if (editingUser) {
+        // Update existing user via API
+        const response = await fetch('/api/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingUser.id,
+            ...userFormData,
+            password: userFormData.password || undefined // Only send password if changed
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          await refreshUsers();
+          addLog('USER_UPDATED', `User (${userFormData.email})`);
+          showAlert("Success", "User updated successfully!", "success");
+        } else {
+          showAlert("Error", data.error || "Failed to update user", "error");
+          return;
         }
-        return u;
-      });
-      setUsers(updatedUsers);
-      addLog('USER_UPDATED', `User (${userFormData.email})`);
-    } else {
-      if (!userFormData.password) return showAlert("Validation Error", "Password is required for new users.", "error");
-      const initialCredits = userFormData.role === 'admin' ? parseInt(systemSettings.adminDefaultCredits || 100) : parseInt(systemSettings.defaultCredits || 2);
-      const newUser = { ...userFormData, id: Date.now().toString(), credits: initialCredits };
-      setUsers([...users, newUser]);
-      addLog('USER_CREATED', `User (${userFormData.email})`);
+      } else {
+        // Create new user via API
+        if (!userFormData.password) {
+          showAlert("Validation Error", "Password is required for new users.", "error");
+          return;
+        }
+        
+        const initialCredits = userFormData.role === 'admin' ? parseInt(systemSettings.adminDefaultCredits || 100) : parseInt(systemSettings.defaultCredits || 2);
+        
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...userFormData,
+            credits: initialCredits
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          await refreshUsers();
+          addLog('USER_CREATED', `User (${userFormData.email})`);
+          showAlert("Success", "User created successfully!", "success");
+        } else {
+          showAlert("Error", data.error || "Failed to create user", "error");
+          return;
+        }
+      }
+      setIsUserModalOpen(false);
+    } catch (error: any) {
+      showAlert("Error", error.message || "Failed to save user", "error");
     }
-    setIsUserModalOpen(false);
   };
 
-  const handleDeleteUser = (id: string) => {
-    if (String(id) === String(currentUser.id)) return showAlert("Action Denied", "Cannot delete your own active account.", "error");
-    showConfirm("Delete User", "Are you sure you want to permanently delete this user?", () => {
-      setUsers(users.filter(u => String(u.id) !== String(id)));
-      addLog('USER_DELETED', `User ID (${id})`);
+  const handleDeleteUser = async (id: string) => {
+    if (String(id) === String(currentUser.id)) {
+      showAlert("Action Denied", "Cannot delete your own active account.", "error");
+      return;
+    }
+    
+    showConfirm("Delete User", "Are you sure you want to permanently delete this user?", async () => {
+      try {
+        const response = await fetch(`/api/users?id=${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          await refreshUsers();
+          addLog('USER_DELETED', `User ID (${id})`);
+          showAlert("Success", "User deleted successfully!", "success");
+        } else {
+          const data = await response.json();
+          showAlert("Error", data.error || "Failed to delete user", "error");
+        }
+      } catch (error: any) {
+        showAlert("Error", error.message || "Failed to delete user", "error");
+      }
       setConfirmMessage(null);
     });
   };
 
-  const handleToggleSuspend = (id: string, currentStatus: string) => {
-    if (String(id) === String(currentUser.id)) return showAlert("Action Denied", "Cannot suspend your own active account.", "error");
+  const handleToggleSuspend = async (id: string, currentStatus: string) => {
+    if (String(id) === String(currentUser.id)) {
+      showAlert("Action Denied", "Cannot suspend your own active account.", "error");
+      return;
+    }
+    
     const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-    setUsers(users.map(u => String(u.id) === String(id) ? { ...u, status: newStatus } : u));
-    addLog(`USER_${newStatus.toUpperCase()}`, `User ID (${id})`);
+    
+    try {
+      const response = await fetch('/api/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+      
+      if (response.ok) {
+        await refreshUsers();
+        addLog(`USER_${newStatus.toUpperCase()}`, `User ID (${id})`);
+        showAlert("Success", `User ${newStatus === 'suspended' ? 'suspended' : 'activated'} successfully!`, "success");
+      } else {
+        const data = await response.json();
+        showAlert("Error", data.error || "Failed to update user status", "error");
+      }
+    } catch (error: any) {
+      showAlert("Error", error.message || "Failed to update user status", "error");
+    }
+  };
+
+  // Clear Cache function
+  const handleClearCache = async () => {
+    showConfirm("Clear Cache", "This will clear all cached resume data and optimization results. Continue?", async () => {
+      try {
+        // Clear server-side cache
+        await fetch('/api/cache', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clearAll: true })
+        });
+        
+        // Clear local storage
+        localStorage.removeItem('ats_resumeText');
+        localStorage.removeItem('ats_jobText');
+        localStorage.removeItem('ats_jobUrl');
+        localStorage.removeItem('ats_history');
+        
+        addLog('CACHE_CLEARED', 'All resume data and optimization results');
+        showAlert("Success", "Cache cleared successfully! The dashboard will start fresh on next login.", "success");
+      } catch (error: any) {
+        showAlert("Error", error.message || "Failed to clear cache", "error");
+      }
+      setConfirmMessage(null);
+    });
   };
 
   const handleSaveSettings = () => {
@@ -1230,6 +1372,28 @@ const AdminDashboard: React.FC<{ currentUser: User, users: User[], setUsers: any
           <div className="flex justify-between items-center"><span className="text-sm font-medium text-slate-500">Total Optimizations</span><div className="bg-purple-100 p-2 rounded-lg text-purple-600"><Activity className="w-5 h-5" /></div></div>
           <div className="text-3xl font-bold text-slate-800 mt-4">35</div>
         </div>
+      </div>
+      
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h3 className="font-bold text-slate-800 mb-4">Quick Actions</h3>
+        <div className="flex flex-wrap gap-3">
+          <button 
+            onClick={handleClearCache}
+            className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2.5 rounded-lg text-sm font-medium transition border border-red-200"
+          >
+            <Trash2 className="w-4 h-4" /> Clear Cache
+          </button>
+          <button 
+            onClick={() => openUserModal()}
+            className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-lg text-sm font-medium transition border border-indigo-200"
+          >
+            <UserPlus className="w-4 h-4" /> Add New User
+          </button>
+        </div>
+        <p className="text-xs text-slate-500 mt-3">
+          <strong>Clear Cache:</strong> Removes all stored resume data and optimization results. Use this to reset the dashboard state.
+        </p>
       </div>
       
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -2459,95 +2623,144 @@ const OptimizerView: React.FC<{ currentUser: User, onLogout: () => void, onGoToA
 };
 
 // --- TOP LEVEL APP WRAPPER (MANAGES AUTH & ROUTING) ---
-
-// Helper function to get initial users
-const getInitialUsers = (): User[] => {
-  if (typeof window === 'undefined') return [];
-  try {
-    const storedUsers = localStorage.getItem('ats_users');
-    if (storedUsers) {
-      return JSON.parse(storedUsers);
-    }
-  } catch (e) {
-    console.error('Error reading users from localStorage:', e);
-  }
-  // Create Default Admin
-  const initialUsers: User[] = [{
-    id: 'admin-001',
-    username: 'admin',
-    password: 'Santafee@@@@@1972',
-    role: 'admin',
-    status: 'active',
-    fullName: 'System Admin',
-    email: 'admin@atspro.com',
-    credits: 100 // Admin default
-  }];
-  try {
-    localStorage.setItem('ats_users', JSON.stringify(initialUsers));
-  } catch (e) {
-    console.error('Error saving users to localStorage:', e);
-  }
-  return initialUsers;
-};
-
-// Helper function to get initial current user
-const getInitialCurrentUser = (): User | null => {
-  if (typeof window === 'undefined') return null;
-  try {
-    const activeSession = localStorage.getItem('ats_active_user');
-    if(activeSession) {
-      return JSON.parse(activeSession);
-    }
-  } catch (e) {
-    console.error('Error reading current user from localStorage:', e);
-  }
-  return null;
-};
-
-// Helper function to get initial app view
-const getInitialAppView = (): string => {
-  if (typeof window === 'undefined') return 'login';
-  try {
-    const activeSession = localStorage.getItem('ats_active_user');
-    return activeSession ? 'optimizer' : 'login';
-  } catch (e) {
-    console.error('Error reading app view from localStorage:', e);
-    return 'login';
-  }
-};
+// Uses API for persistent user storage across all devices/sessions
 
 export default function App() {
-  const [users, setUsers] = useState<User[]>(getInitialUsers);
-  const [currentUser, setCurrentUser] = useState<User | null>(getInitialCurrentUser);
-  const [appView, setAppView] = useState(getInitialAppView); // 'login', 'optimizer', 'admin'
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [appView, setAppView] = useState<'login' | 'optimizer' | 'admin' | 'loading'>('loading');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sync Users to LocalStorage on change
+  // Load users from API on mount
   useEffect(() => {
-    if(users.length > 0) {
-       localStorage.setItem('ats_users', JSON.stringify(users));
-    }
-  }, [users]);
+    const initializeApp = async () => {
+      try {
+        // Fetch users from API
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        
+        if (data.users) {
+          setUsers(data.users);
+        }
+        
+        // Check for existing session
+        const sessionResponse = await fetch('/api/auth');
+        const sessionData = await sessionResponse.json();
+        
+        if (sessionData.valid && sessionData.user) {
+          setCurrentUser(sessionData.user);
+          setAppView('optimizer');
+        } else {
+          // Check localStorage for backward compatibility during migration
+          const savedSession = localStorage.getItem('ats_active_user');
+          if (savedSession) {
+            const savedUser = JSON.parse(savedSession);
+            // Try to re-authenticate with saved credentials
+            const loginResponse = await fetch('/api/auth', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                username: savedUser.username, 
+                password: savedUser.password 
+              })
+            });
+            const loginData = await loginResponse.json();
+            if (loginData.user) {
+              setCurrentUser(loginData.user);
+              setAppView('optimizer');
+              // Clear old localStorage session data
+              localStorage.removeItem('ats_active_user');
+              localStorage.removeItem('ats_users');
+            } else {
+              setAppView('login');
+            }
+          } else {
+            setAppView('login');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+        setAppView('login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    initializeApp();
+  }, []);
 
-  const handleLogout = () => {
+  // Refresh users from API
+  const refreshUsers = async () => {
+    try {
+      const response = await fetch('/api/users');
+      const data = await response.json();
+      if (data.users) {
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.error('Failed to refresh users:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' })
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setCurrentUser(null);
     localStorage.removeItem('ats_active_user');
+    localStorage.removeItem('ats_users');
+    // Clear session-specific resume data
+    localStorage.removeItem('ats_resumeText');
+    localStorage.removeItem('ats_jobText');
+    localStorage.removeItem('ats_jobUrl');
+    localStorage.removeItem('ats_history');
     setAppView('login');
   };
 
-  const handleLogin = (username?: string, password?: string) => {
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user && user.status === 'active') {
-      setCurrentUser(user);
-      localStorage.setItem('ats_active_user', JSON.stringify(user));
-      setAppView('optimizer');
-      return true;
+  const handleLogin = async (username?: string, password?: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      
+      const data = await response.json();
+      
+      if (data.user && data.user.status !== 'suspended') {
+        setCurrentUser(data.user);
+        await refreshUsers();
+        setAppView('optimizer');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   const handleNavigateAdmin = () => {
     if (currentUser?.role === 'admin') setAppView('admin');
   };
+
+  // Show loading state
+  if (isLoading || appView === 'loading') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading ATSPro...</p>
+        </div>
+      </div>
+    );
+  }
 
   // ROUTER
   if (appView === 'login') {
@@ -2561,7 +2774,14 @@ export default function App() {
   if (appView === 'admin' && currentUser?.role === 'admin') {
     return (
       <ErrorBoundary>
-        <AdminDashboard currentUser={currentUser} users={users} setUsers={setUsers} onClose={() => setAppView('optimizer')} onLogout={handleLogout} />
+        <AdminDashboard 
+          currentUser={currentUser} 
+          users={users} 
+          setUsers={setUsers} 
+          refreshUsers={refreshUsers}
+          onClose={() => setAppView('optimizer')} 
+          onLogout={handleLogout} 
+        />
       </ErrorBoundary>
     );
   }

@@ -1,0 +1,15 @@
+name = "geminiatsnew"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = ".vercel/output/static"
+
+# KV namespace for persistent storage
+# You need to create a KV namespace first:
+# wrangler kv:namespace create ATS_KV
+# Then replace the id below with the actual namespace ID
+
+[[kv_namespaces]]
+binding = "ATS_KV"
+id = "will-be-created-when-you-run-wrangler-kv-namespace-create"
+
+[vars]
+ENVIRONMENT = "production"
