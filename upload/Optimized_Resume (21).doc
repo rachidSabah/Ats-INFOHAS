@@ -1,0 +1,106 @@
+
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>Export</title>
+        <style>
+          /* STRICT A4 PAGE LAYOUT - 0.95cm margins for perfect one-page fit */
+          @page {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm; 
+              mso-page-orientation: portrait;
+          }
+          @page WordSection1 {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm;
+          }
+          div.WordSection1 {
+              page: WordSection1;
+          }
+          /* Global Resets - COMPACT LAYOUT */
+          body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 12.0pt; 
+            line-height: 1.10; 
+            color: #000000; 
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+          }
+          /* Force Single Column Flow */
+          div, p, ul, li, h1, h2, h3, h4 {
+            display: block !important;
+            width: 100% !important;
+            float: none !important;
+            clear: both !important;
+          }
+          /* Header: Name AND Section Titles - SAME STYLE */
+          h1 { 
+            font-size: 12pt; 
+            font-weight: bold; 
+            text-align: left; 
+            text-transform: uppercase;
+            color: #000000;
+            margin: 0 0 2pt 0; 
+            padding: 0;
+          }
+          /* Header: Contact - LEFT ALIGNED */
+          p.contact {
+            text-align: left; 
+            font-size: 11pt; 
+            margin: 0 0 6pt 0; 
+            color: #000000;
+          }
+          /* Section Headers - SAME AS H1 STYLE */
+          h3 { 
+            font-size: 12pt; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            text-align: left; 
+            border: none !important;
+            text-decoration: none !important;
+            margin-top: 6pt; 
+            margin-bottom: 2pt;
+            color: #000000;
+          }
+          /* Job Titles - JUSTIFIED */
+          h4 {
+            font-size: 12pt;
+            margin-top: 2pt;
+            margin-bottom: 0;
+            color: #000000;
+            font-weight: bold;
+            text-align: justify;
+          }
+          /* Body Text - JUSTIFIED */
+          p { 
+            margin: 0;
+            text-align: justify;
+            margin-bottom: 2pt; 
+          }
+          /* Bullets - JUSTIFIED, ULTRA TIGHT spacing */
+          ul { 
+            margin: 0 !important;
+            padding-left: 12pt; 
+            list-style-type: disc;
+          }
+          li { 
+            margin: 0 !important;
+            padding-left: 0;
+            list-style-type: disc;
+            text-align: justify;
+          }
+          /* Clean Bold */
+          strong, b {
+            color: #000000;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="WordSection1">
+          <h1>ZAKARIYA NADIF</h1><p class="contact">Rabat, Morocco | +212 694-122414 | zakaria.n004@gmail.com</p><h3>PROFESSIONAL SUMMARY</h3><p style="text-align:justify;">Dedicated and proactive Trilingual Professional with a strong background in aviation and hospitality, seeking a transition into an Airline Customer Contact Centre Agent role. With notable expertise in handling high-pressure situations, I have successfully managed client tasks while achieving a 95% satisfaction rate through impeccable service delivery. My proficiency in Arabic, French, and English enhances communication effectiveness, facilitating seamless engagement with diverse clientele in fast-paced environments. I excel in operational compliance and have a keen understanding of Safety Management Systems, ensuring adherence to FAA regulations and ICAO standards. I am committed to delivering world-class customer experiences while fostering multi-cultural team collaboration and situational awareness. Proven decision-making skills under pressure, supporting overall operational success.</p><h3>EXPERIENCE</h3><h4><strong>Administrative Agent</strong> | <strong>BIOLOGIA LABORATORY</strong>, Rabat, Morocco | <strong>Jan 2023 to Present</strong></h4><ul><li>Actively serve as the primary trilingual client liaison, providing responsive assistance in Arabic, French, and English to enhance the client experience, achieving a customer satisfaction rate exceeding 95%.</li><li>Implemented a patient scheduling system that optimized workflow within the laboratory, resulting in a 30% increase in efficiency and improved appointment management.</li><li>Ensured absolute data accuracy throughout organizational procedures, resulting in a 100% compliance with operational regulations and significantly reducing errors in record-keeping.</li><li>Facilitated critical communication streams between departments, ensuring alignment and clarity in operations, improving departmental efficiencies by 25%.</li><li>Resolved complex client inquiries and scheduling conflicts through a proactive and solution-oriented approach, enhancing service reputation and client retention rates by 20%.</li></ul><h4><strong>Sales Assistant and Customer Services Agent</strong> | <strong>MAESTRO Fashion Shop</strong>, Rabat, Morocco | <strong>Jan 2022 to Dec 2022</strong></h4><ul><li>Delivered personalized customer service in a high-volume retail environment, contributing to a 40% increase in sales through effective communication and comprehensive product knowledge.</li><li>Managed point-of-sale operations and established visual merchandising standards, supporting team objectives and leading to a 30% boost in customer engagement.</li><li>Developed and maintained strong relationships with clientele, fostering brand loyalty and repeat visits by implementing customer feedback strategies and personalized marketing initiatives.</li><li>Streamlined inventory checks and sales reporting, optimizing operational efficiency and maintaining an organized stock environment to prevent shortages and preserve customer satisfaction.</li><li>Engaged in conflict resolution, effectively addressing customer complaints to ensure positive outcomes, significantly reducing escalation rates by 25%.</li></ul><h3>EDUCATION</h3><h4><strong>Aviation and Hospitality Vocational Training</strong> | <strong>INFOHAS</strong> | <strong>2025</strong></h4><ul><li>In-Flight Service Standards</li><li>Emergency Procedures</li><li>Premium Guest Experience</li><li>Cabin Safety Management</li><li>Operational Compliance</li></ul><h4><strong>Specialized Technician, Business Management</strong> | <strong>OFPPT</strong> | <strong>2022</strong></h4><ul><li>Organizational Behavior</li><li>Strategic Marketing</li><li>Human Resources Management</li><li>Project Management</li><li>Business Communication</li></ul><h4><strong>High School Degree, Economics and Finance</strong> | <strong>Temara High School</strong> | <strong>2020</strong></h4><ul><li>Basic Economics</li><li>Mathematics</li><li>Business Studies</li><li>Finance Fundamentals</li><li>Statistics</li></ul><h3>SKILLS</h3><ul><li><strong>Technical:</strong> Safety Management Systems, CRM, FAA Regulations, ICAO Standards, Data Management, Scheduling Software, Operational Compliance</li><li><strong>Soft Skills:</strong> Decision Making Under Pressure, Multi-Crew Coordination, Situational Awareness, Problem Solving, Conflict Resolution</li><li><strong>Languages:</strong> Arabic (Native), French (Fluent), English (Fluent)</li></ul>
+        </div>
+      </body>
+    </html>
+  

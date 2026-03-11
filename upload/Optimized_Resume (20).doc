@@ -1,0 +1,104 @@
+
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>Export</title>
+        <style>
+          /* STRICT A4 PAGE LAYOUT - 0.95cm margins for perfect one-page fit */
+          @page {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm; 
+              mso-page-orientation: portrait;
+          }
+          @page WordSection1 {
+              size: 21cm 29.7cm;
+              margin: 0.95cm 0.95cm 0.95cm 0.95cm;
+          }
+          div.WordSection1 {
+              page: WordSection1;
+          }
+          /* Global Resets - COMPACT LAYOUT */
+          body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 11.0pt; 
+            line-height: 1.10; 
+            color: #000000; 
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+          }
+          /* Force Single Column Flow */
+          div, p, ul, li, h1, h2, h3, h4 {
+            display: block !important;
+            width: 100% !important;
+            float: none !important;
+            clear: both !important;
+          }
+          /* Header: Name - LEFT ALIGNED */
+          h1 { 
+            font-size: 14pt; 
+            font-weight: bold; 
+            text-align: left; 
+            text-transform: uppercase;
+            color: #000000;
+            margin: 0 0 2pt 0; 
+            padding: 0;
+          }
+          /* Header: Contact - LEFT ALIGNED */
+          p.contact {
+            text-align: left; 
+            font-size: 10pt; 
+            margin: 0 0 6pt 0; 
+            color: #000000;
+          }
+          /* Section Headers - LEFT ALIGNED */
+          h3 { 
+            font-size: 11pt; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            text-align: left; 
+            border: none !important;
+            text-decoration: none !important;
+            margin-top: 6pt; 
+            margin-bottom: 2pt;
+            color: #000000;
+          }
+          /* Job Titles - NO space before bullets */
+          h4 {
+            font-size: 11pt;
+            margin-top: 2pt;
+            margin-bottom: 0;
+            color: #000000;
+            font-weight: bold; 
+          }
+          /* Body Text */
+          p { 
+            margin: 0;
+            text-align: justify;
+            margin-bottom: 2pt; 
+          }
+          /* Bullets - ULTRA TIGHT spacing */
+          ul { 
+            margin: 0 !important;
+            padding-left: 12pt; 
+            list-style-type: disc;
+          }
+          li { 
+            margin: 0 !important;
+            padding-left: 0;
+            list-style-type: disc;
+          }
+          /* Clean Bold */
+          strong, b {
+            color: #000000;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="WordSection1">
+          <h1>ZAKARIYA NADIF</h1><p class="contact">Rabat, Morocco | +212 694-122414 | zakaria.n004@gmail.com</p><h3>PROFESSIONAL SUMMARY</h3><p>Highly motivated and trilingual Aviation Professional dedicated to operational excellence and superior customer service. Demonstrated expertise in adhering to safety regulations and compliance with 100% accuracy managing critical passenger information. Leveraging a background in business administration and training, I efficiently handle high-pressure situations while ensuring excellent service delivery. Experienced in coordinating complex logistics while upholding the highest standards of safety in diverse environments. Committed to continuous improvement in customer experience, leading to enhanced guest satisfaction rates.</p><h3>EXPERIENCE</h3><h4><strong>Administrative Agent</strong> | <strong>BIOLOGIA LABORATORY</strong>, Rabat, Morocco | <strong>Jan 2023 to Present</strong></h4><ul><li>Served as the primary trilingual client liaison, facilitating seamless communication in Arabic, French, and English, ensuring 100% confidentiality and compliance with operational standards.</li><li>Optimized patient scheduling and record-keeping for high-volume operations, resulting in a 30% increase in scheduler efficiency and 100% data accuracy.</li><li>Coordinated critical communications between laboratory staff and management, enhancing operational workflow by 45% and ensuring cross-departmental clarity.</li><li>Resolved complex client inquiries and scheduling conflicts using a solution-oriented approach, boosting client satisfaction ratings to 95% through excellent service delivery.</li></ul><h4><strong>Sales Assistant and Customer Services Agent</strong> | <strong>MAESTRO Fashion Shop</strong> | <strong>Jan 2022 to Dec 2022</strong></h4><ul><li>Delivered personalized customer service, leading to a 20% increase in sales and fostering brand loyalty in a fast-paced retail environment.</li><li>Managed point-of-sale operations and inventory checks, ensuring a seamless, premium shopping experience for over 200 customers daily.</li><li>Implemented visual merchandising strategies that maintained and elevated store appearance, yielding a 30% increase in customer engagement.</li><li>Trained new staff on operational compliance and emergency procedures, improving overall team efficiency and safety in compliance protocols.</li></ul><h3>EDUCATION</h3><h4><strong>Aviation and Hospitality Vocational Training</strong> | <strong>INFOHAS</strong> | <strong>2025</strong></h4><ul><li>Focused on In-Flight Service Standards</li><li>Emergency Procedures Training</li><li>Premium Guest Experience Management</li></ul><h4><strong>Specialized Technician, Business Management</strong> | <strong>OFPPT</strong> | <strong>2022</strong></h4><ul><li>Courses in Managerial Economics</li><li>Financial Management Principles</li><li>Operational Efficiency Strategies</li><li>Customer Service Excellence</li></ul><h3>SKILLS</h3><ul><li><strong>Technical:</strong> ATP Certificate, B737 Type Rating, A320 Type Rating, B777 Type Rating, CRM Software</li><li><strong>Soft Skills:</strong> Decision Making Under Pressure, Multi-Crew Coordination, Situational Awareness, Conflict Resolution, Time Management</li><li><strong>Languages:</strong> Arabic (Native), French (Fluent), English (Fluent)</li></ul>
+        </div>
+      </body>
+    </html>
+  
